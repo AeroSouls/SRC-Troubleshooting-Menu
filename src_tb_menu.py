@@ -208,18 +208,6 @@ def run_command(command):
     output_text.config(state=tk.DISABLED)
     scrollbar.update()
 
-# #Fancy buttons
-# style = ttk.Style()
-# style.configure("Fancy.TButton",
-#                 foreground="black",
-#                 background="black",
-#                 font=("Helvetica", 12, "bold"),
-#                 padding=10,
-#                 relief="raised",
-#                 borderwidth=2)
-# style.map("Fancy.TButton",
-#           background=[("active", "#4f6f8f"), ("!disabled", "black")])
-
 # Create a menu bar
 menu_bar = tk.Menu(window)
 window.config(menu=menu_bar)
@@ -230,7 +218,7 @@ menu_bar.add_cascade(label="Open UI \u25BE", menu=quick_menu)
 quick_menu.add_command(label="Device Manager", command=lambda: run_command("start devmgmt.msc"))
 quick_menu.add_command(label="Computer Management", command=lambda: run_command("start compmgmt.msc"))
 
-# Add a submenu for "DC" with a drop-down arrow
+# Add a submenu for "DC" 
 dc_menu = tk.Menu(quick_menu, tearoff=0)
 quick_menu.add_cascade(label="DC", menu=dc_menu)
 dc_menu.add_command(label="Open Active Directory Users and Computers", command=open_active_directory_users_and_computers)
@@ -266,8 +254,8 @@ left_frame.grid(column=0, row=0, padx=20, pady=10, rowspan=2)
 temp_frame = ttk.Frame(left_frame)
 temp_frame.pack(pady=5)
 
-button1 = ttk.Button(temp_frame, text="Show Temp Directory", command=lambda: run_command("dir %temp%\\*"), style="Fancy.TButton")
-button2 = ttk.Button(temp_frame, text="Clear Temp Files", command=lambda: run_command("del /s /q /f %temp%\\*"), style="Fancy.TButton")
+button1 = ttk.Button(temp_frame, text="Show Temp Directory", command=lambda: run_command("dir %temp%\\*"))
+button2 = ttk.Button(temp_frame, text="Clear Temp Files", command=lambda: run_command("del /s /q /f %temp%\\*"))
 
 button1.grid(row=0, column=0, padx=5, pady=5)
 button2.grid(row=1, column=0, padx=5, pady=5)
@@ -280,14 +268,14 @@ ip_entry = ttk.Entry(ping_frame)
 ip_entry.grid(row=0, column=0, padx=5, pady=5)
 ip_entry.insert(0, "google.com")  # Set a default value
 
-ping_button = ttk.Button(ping_frame, text="Ping IP", command=lambda: ping_google(ip_entry.get()), style="Fancy.TButton")
+ping_button = ttk.Button(ping_frame, text="Ping IP", command=lambda: ping_google(ip_entry.get()))
 ping_button.grid(row=1, column=0, padx=5, pady=5)
 
-download_log_button = ttk.Button(ping_frame, text="Open Ping Log", command=download_ping_log, style="Fancy.TButton")
+download_log_button = ttk.Button(ping_frame, text="Open Ping Log", command=download_ping_log)
 download_log_button.grid(row=2, column=0, padx=5, pady=5)
 
 # Move Stop Ping button to the left frame
-stop_button = ttk.Button(ping_frame, text="Stop Ping", command=stop_ping, style="Fancy.TButton")
+stop_button = ttk.Button(ping_frame, text="Stop Ping", command=stop_ping)
 stop_button.grid(row=3, column=0, padx=5, pady=5)
 
 #output buttons
@@ -298,7 +286,7 @@ output_text = tk.Text(output_frame, height=10, state=tk.DISABLED)
 scrollbar = tk.Scrollbar(output_frame, command=output_text.yview)
 output_text.config(yscrollcommand=scrollbar.set)
 
-clear_button = ttk.Button(output_frame, text="Clear Output", command=lambda: clear_output(), style="Fancy.TButton")
+clear_button = ttk.Button(output_frame, text="Clear Output", command=lambda: clear_output())
 
 output_text.grid(column=0, row=0, padx=0, pady=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 scrollbar.grid(column=1, row=0, padx=(0, 0), pady=0, sticky=(tk.NE, tk.SE)) 
