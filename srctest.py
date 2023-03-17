@@ -32,6 +32,8 @@ def get_serial_number():
         serial_number = line.strip()
         if serial_number == "System Serial Number" or serial_number == "To be filled by O.E.M.":
             return "Custom Build"
+        elif "VMware" in serial_number:
+            return "VMware"
         else:
             return serial_number
     return "Unknown"
@@ -183,7 +185,7 @@ def copy_info_to_clipboard():
     
     info = f"Computer Name: {computer_name}\nIP Address: {ip_address}\nSerial Number: {serial_number}\nConnectWise ID: {connectwise_id}"
     pyperclip.copy(info)
-    
+
 def open_active_directory_users_and_computers():
     run_command("start dsa.msc")
 
