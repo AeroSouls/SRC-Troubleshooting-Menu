@@ -37,19 +37,26 @@ def get_serial_number():
 
 def get_connectwise_id():
     registry_keys = [
-        r"SOFTWARE\WOW6432Node\LabTech\Service",
-        r"SOFTWARE\LabTech\Service",
+        r"HKLM\SOFTWARE\WOW6432Node\LabTech\Service",
+        r"HKLM\SOFTWARE\LabTech\Service",
     ]
 
     for registry_key in registry_keys:
         try:
-            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, registry_key) as key:
-                connectwise_id, _ = winreg.QueryValueEx(key, "ID")
-                return connectwise_id
-        except FileNotFoundError:
+            output = subprocess.check_output(
+                f'reg query "{registry_key}" /v ID', shell=True, text=True, stderr=subprocess.DEVNULL
+            )
+
+            for line in output.splitlines():
+                if "ID" in line:
+                    _, _, connectwise_id = line.strip().partition("ID")
+                    connectwise_id = connectwise_id.strip().split()[-1]  # Extract the last element after splitting the remaining string
+                    if connectwise_id.startswith("0x"):
+                        connectwise_id = int(connectwise_id, 16)  # Convert the hexadecimal value to an integer
+                    if connectwise_id:
+                        return connectwise_id
+        except subprocess.CalledProcessError:
             pass
-        except Exception as e:
-            return "Unknown"
 
     return "Not Installed"
 
