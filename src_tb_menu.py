@@ -11,6 +11,7 @@ import datetime
 import shutil
 import tempfile
 import winreg
+import pyperclip
 
 def get_computer_name():
     return os.environ['COMPUTERNAME']
@@ -152,6 +153,40 @@ def download_ping_log():
         # If the log file doesn't exist, set the ping output variable
         ping_output_var.set("No log file found.")
 
+def lock_computer():
+    os.system("rundll32.exe user32.dll,LockWorkStation")
+
+def clear_logs():
+    output_text.config(state=tk.NORMAL)
+    output_text.delete("1.0", tk.END)
+    
+    if os.path.exists("ping_log.txt"):
+        os.remove("ping_log.txt")
+        output_text.insert(tk.END, "Ping logs cleared.\n")
+    else:
+        output_text.insert(tk.END, "No log file found.\n")
+    
+    output_text.config(state=tk.DISABLED)
+    scrollbar.update()
+
+def clear_output():
+    output_text.config(state=tk.NORMAL)
+    output_text.delete("1.0", tk.END)
+    output_text.config(state=tk.DISABLED)
+    scrollbar.update()
+
+def copy_info_to_clipboard():
+    computer_name = get_computer_name()
+    ip_address = get_ip_address()
+    serial_number = get_serial_number()
+    connectwise_id = get_connectwise_id()
+    
+    info = f"Computer Name: {computer_name}\nIP Address: {ip_address}\nSerial Number: {serial_number}\nConnectWise ID: {connectwise_id}"
+    pyperclip.copy(info)
+    
+def open_active_directory_users_and_computers():
+    run_command("start dsa.msc")
+
 # Create the main window
 window = tk.Tk()
 window.title("SRC Troubleshooter Menu #252-756-0004")
@@ -171,68 +206,72 @@ def run_command(command):
     output_text.config(state=tk.DISABLED)
     scrollbar.update()
 
-#Fancy buttons
-style = ttk.Style()
-style.configure("Fancy.TButton",
-                foreground="black",
-                background="black",
-                font=("Helvetica", 12, "bold"),
-                padding=10,
-                relief="raised",
-                borderwidth=2)
-style.map("Fancy.TButton",
-          background=[("active", "#4f6f8f"), ("!disabled", "black")])
+# #Fancy buttons
+# style = ttk.Style()
+# style.configure("Fancy.TButton",
+#                 foreground="black",
+#                 background="black",
+#                 font=("Helvetica", 12, "bold"),
+#                 padding=10,
+#                 relief="raised",
+#                 borderwidth=2)
+# style.map("Fancy.TButton",
+#           background=[("active", "#4f6f8f"), ("!disabled", "black")])
 
 # Create a menu bar
 menu_bar = tk.Menu(window)
 window.config(menu=menu_bar)
 
-# Add "Open Admin CMD" and "Open Computer Manag" directly to the menu bar
-menu_bar.add_command(label="Open Admin CMD", command=lambda: run_command("start cmd"))
-menu_bar.add_command(label="Open Computer Management ", command=lambda: run_command("start compmgmt.msc"))
-menu_bar.add_command(label="Open Device Manager", command=lambda: run_command("start devmgmt.msc"))
+# Add "Open Interfaces" menu bar
+quick_menu = tk.Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Open UI", menu=quick_menu)
+quick_menu.add_command(label="Device Manager", command=lambda: run_command("start devmgmt.msc"))
+quick_menu.add_command(label="Computer Management", command=lambda: run_command("start compmgmt.msc"))
 
+# Add "DC" submenu
+dc_menu = tk.Menu(quick_menu, tearoff=0)
+quick_menu.add_cascade(label="DC", menu=dc_menu)
+dc_menu.add_command(label="Active Directory Users and Computers", command=open_active_directory_users_and_computers)
 
-# Add "Tools" menu with "Download Files (Agent Installer)" option
+# Add directly to the menu bar
+menu_bar.add_command(label="Admin CMD", command=lambda: run_command("start cmd"))
+menu_bar.add_command(label="Remote Support", command=lambda: webbrowser.open("https://itbysrc.com/remote-support/"))
+
+# Add "Download" menu bar
 download_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Downloads", menu=download_menu)
 download_menu.add_command(label="Agent Installer", command=lambda: webbrowser.open("https://itbysrc.com/agent/Agent_Install.MSI"))
+
+# Add "Power Options" menu bar
+power_menu = tk.Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Power Options", menu=power_menu)
+power_menu.add_command(label="Restart Computer", command=restart_computer)
+power_menu.add_command(label="Lock Computer", command=lock_computer)
+
+# Adding clear log button to menu bar at the end
+menu_bar.add_command(label="Clear IP Logs", command=clear_logs)
 
 # Modify the button_frame layout
 button_frame = ttk.Frame(window)
 button_frame.grid(column=0, row=0, padx=20, pady=10)
 
-button1 = ttk.Button(button_frame, text="Restart Computer", command=restart_computer, style="Fancy.TButton") 
-button2 = ttk.Button(button_frame, text="Show Temp Directory", command=lambda: run_command("dir %temp%\\*"), style="Fancy.TButton")
-button3 = ttk.Button(button_frame, text="Clear Temp Files", command=lambda: run_command("del /s /q /f %temp%\\*"), style="Fancy.TButton")
+# Modify the button_frame layout
+left_frame = ttk.Frame(window)
+left_frame.grid(column=0, row=0, padx=20, pady=10, rowspan=2)
 
-support_button = ttk.Button(button_frame, text="Remote Support", command=lambda: webbrowser.open("https://itbysrc.com/remote-support/"), style="Fancy.TButton")
+# Temp directory buttons
+temp_frame = ttk.Frame(left_frame)
+temp_frame.pack(pady=5)
 
-output_text = tk.Text(window, height=10, state=tk.DISABLED)
-scrollbar = tk.Scrollbar(window, command=output_text.yview)
-output_text.config(yscrollcommand=scrollbar.set)
-
-clear_button = ttk.Button(window, text="Clear Output", command=lambda: clear_output(), style="Fancy.TButton")
-
-def clear_output():
-    output_text.config(state=tk.NORMAL)
-    output_text.delete("1.0", tk.END)
-    output_text.config(state=tk.DISABLED)
-    scrollbar.update()
+button1 = ttk.Button(temp_frame, text="Show Temp Directory", command=lambda: run_command("dir %temp%\\*"), style="Fancy.TButton")
+button2 = ttk.Button(temp_frame, text="Clear Temp Files", command=lambda: run_command("del /s /q /f %temp%\\*"), style="Fancy.TButton")
 
 button1.grid(row=0, column=0, padx=5, pady=5)
 button2.grid(row=1, column=0, padx=5, pady=5)
-button3.grid(row=2, column=0, padx=5, pady=5)
-support_button.grid(row=3, column=0, padx=5, pady=5)
-
-output_text.grid(column=1, row=0, padx=10, pady=10, sticky=(tk.W, tk.E, tk.N, tk.S))
-scrollbar.grid(column=1, row=0, padx=(0, 10), pady=10, sticky=(tk.NE, tk.SE))  # Adjust the padx to shift the scrollbar to the right
-
-clear_button.grid(column=1, row=1, padx=10, pady=5, sticky=(tk.W, tk.E))
 
 # Ping Frame / Ping Entry
-ping_frame = ttk.Frame(window)
-ping_frame.grid(column=0, row=2, padx=20, pady=5)
+ping_frame = ttk.Frame(left_frame)
+ping_frame.pack(pady=5)
 
 ip_entry = ttk.Entry(ping_frame)
 ip_entry.grid(row=0, column=0, padx=5, pady=5)
@@ -244,11 +283,23 @@ ping_button.grid(row=1, column=0, padx=5, pady=5)
 download_log_button = ttk.Button(ping_frame, text="Open Ping Log", command=download_ping_log, style="Fancy.TButton")
 download_log_button.grid(row=2, column=0, padx=5, pady=5)
 
-stop_button = ttk.Button(window, text="Stop Ping", command=stop_ping, style="Fancy.TButton")
-stop_button.grid(column=1, row=2, padx=10, pady=5, sticky=(tk.W, tk.E))
+# Move Stop Ping button to the left frame
+stop_button = ttk.Button(ping_frame, text="Stop Ping", command=stop_ping, style="Fancy.TButton")
+stop_button.grid(row=3, column=0, padx=5, pady=5)
 
-ping_output_label = ttk.Label(window, textvariable=ping_output_var, anchor=tk.W, justify=tk.LEFT)
-ping_output_label.grid(column=1, row=3, padx=10, pady=10, sticky=(tk.W, tk.E))
+#output buttons
+output_frame = ttk.Frame(window)
+output_frame.grid(column=1, row=0, padx=10, pady=10, rowspan=3)
+
+output_text = tk.Text(output_frame, height=10, state=tk.DISABLED)
+scrollbar = tk.Scrollbar(output_frame, command=output_text.yview)
+output_text.config(yscrollcommand=scrollbar.set)
+
+clear_button = ttk.Button(output_frame, text="Clear Output", command=lambda: clear_output(), style="Fancy.TButton")
+
+output_text.grid(column=0, row=0, padx=0, pady=0, sticky=(tk.W, tk.E, tk.N, tk.S))
+scrollbar.grid(column=1, row=0, padx=(0, 0), pady=0, sticky=(tk.NE, tk.SE)) 
+clear_button.grid(column=0, row=1, padx=0, pady=5, sticky=(tk.W, tk.E))
 
 # Create a status panel
 status_panel = ttk.Frame(window)
@@ -266,6 +317,9 @@ serial_number_label.grid(column=0, row=2, padx=5, pady=5, sticky=tk.W)
 
 connectwise_id_label = ttk.Label(status_panel, text="ConnectWise ID: {}".format(get_connectwise_id()), anchor=tk.W)
 connectwise_id_label.grid(column=0, row=3, padx=5, pady=5, sticky=tk.W)
+
+copy_button = ttk.Button(status_panel, text="Copy Info", command=copy_info_to_clipboard, style="Fancy.TButton")
+copy_button.grid(column=0, row=4, padx=5, pady=5, sticky=tk.W)
 
 window.columnconfigure(1, weight=1)
 window.rowconfigure(0, weight=1)
