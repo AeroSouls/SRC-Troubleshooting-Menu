@@ -197,17 +197,6 @@ window.title("SRC Troubleshooter Menu #252-756-0004")
 ping_output_var = tk.StringVar()
 last_three_lines = ["", "", "", "", "", "", ""]
 
-def run_command(command):
-    # Run the specified command and capture its output
-    output = os.popen(command).read()
-    # Enable the output text widget, clear its contents, and insert the command output
-    output_text.config(state=tk.NORMAL)
-    output_text.delete("1.0", tk.END)
-    output_text.insert(tk.END, output)
-    # Disable the output text widget and update the scrollbar
-    output_text.config(state=tk.DISABLED)
-    scrollbar.update()
-
 # Create a menu bar
 menu_bar = tk.Menu(window)
 window.config(menu=menu_bar)
