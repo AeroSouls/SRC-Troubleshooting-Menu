@@ -1,19 +1,16 @@
 import tkinter as tk
-import os
-import sys
-import webbrowser
-import subprocess
-import threading
-import shutil
-import tempfile
-import queue
-import datetime
-import time
-import socket
-import winreg
 from tkinter import ttk
 from tkinter import messagebox
-from tkinter import simpledialog
+import webbrowser
+import os
+import socket
+import subprocess
+import threading
+import queue
+import datetime
+import shutil
+import tempfile
+import winreg
 
 def get_computer_name():
     return os.environ['COMPUTERNAME']
@@ -188,6 +185,12 @@ menu_bar.add_command(label="Open Admin CMD", command=lambda: run_command("start 
 menu_bar.add_command(label="Open Computer Management ", command=lambda: run_command("start compmgmt.msc"))
 menu_bar.add_command(label="Open Device Manager", command=lambda: run_command("start devmgmt.msc"))
 
+
+# Add "Tools" menu with "Download Files (Agent Installer)" option
+download_menu = tk.Menu(menu_bar, tearoff=0)
+menu_bar.add_cascade(label="Downloads", menu=download_menu)
+download_menu.add_command(label="Agent Installer", command=lambda: webbrowser.open("https://itbysrc.com/agent/Agent_Install.MSI"))
+
 # Modify the button_frame layout
 button_frame = ttk.Frame(window)
 button_frame.grid(column=0, row=0, padx=20, pady=10)
@@ -197,7 +200,6 @@ button2 = ttk.Button(button_frame, text="Show Temp Directory", command=lambda: r
 button3 = ttk.Button(button_frame, text="Clear Temp Files", command=lambda: run_command("del /s /q /f %temp%\\*"), style="Fancy.TButton")
 
 support_button = ttk.Button(button_frame, text="Remote Support", command=lambda: webbrowser.open("https://itbysrc.com/remote-support/"), style="Fancy.TButton")
-tools_button = ttk.Button(button_frame, text="SRC Tools Download", command=lambda: webbrowser.open("https://itbysrc.com/agent/index.php?dir=%21%20SRC%20Tools/"), style="Fancy.TButton")
 
 output_text = tk.Text(window, height=10, state=tk.DISABLED)
 scrollbar = tk.Scrollbar(window, command=output_text.yview)
@@ -215,7 +217,6 @@ button1.grid(row=0, column=0, padx=5, pady=5)
 button2.grid(row=1, column=0, padx=5, pady=5)
 button3.grid(row=2, column=0, padx=5, pady=5)
 support_button.grid(row=3, column=0, padx=5, pady=5)
-tools_button.grid(row=4, column=0, padx=5, pady=5)
 
 output_text.grid(column=1, row=0, padx=10, pady=10, sticky=(tk.W, tk.E, tk.N, tk.S))
 scrollbar.grid(column=1, row=0, padx=(0, 10), pady=10, sticky=(tk.NE, tk.SE))  # Adjust the padx to shift the scrollbar to the right
