@@ -32,6 +32,8 @@ def get_serial_number():
         serial_number = line.strip()
         if serial_number == "System Serial Number" or serial_number == "To be filled by O.E.M.":
             return "Custom Build"
+        elif "VMware" in serial_number:
+            return "VMware"
         else:
             return serial_number
     return "Unknown"
@@ -183,7 +185,7 @@ def copy_info_to_clipboard():
     
     info = f"Computer Name: {computer_name}\nIP Address: {ip_address}\nSerial Number: {serial_number}\nConnectWise ID: {connectwise_id}"
     pyperclip.copy(info)
-    
+
 def open_active_directory_users_and_computers():
     run_command("start dsa.msc")
 
@@ -222,16 +224,17 @@ def run_command(command):
 menu_bar = tk.Menu(window)
 window.config(menu=menu_bar)
 
-# Add "Open Interfaces" menu bar
+# Add "Open Interfaces" menu bar with a drop-down arrow
 quick_menu = tk.Menu(menu_bar, tearoff=0)
-menu_bar.add_cascade(label="Open UI", menu=quick_menu)
+menu_bar.add_cascade(label="Open UI \u25BE", menu=quick_menu)
 quick_menu.add_command(label="Device Manager", command=lambda: run_command("start devmgmt.msc"))
 quick_menu.add_command(label="Computer Management", command=lambda: run_command("start compmgmt.msc"))
 
-# Add "DC" submenu
+# Add a submenu for "DC" with a drop-down arrow
 dc_menu = tk.Menu(quick_menu, tearoff=0)
 quick_menu.add_cascade(label="DC", menu=dc_menu)
-dc_menu.add_command(label="Active Directory Users and Computers", command=open_active_directory_users_and_computers)
+dc_menu.add_command(label="Open Active Directory Users and Computers", command=open_active_directory_users_and_computers)
+
 
 # Add directly to the menu bar
 menu_bar.add_command(label="Admin CMD", command=lambda: run_command("start cmd"))
@@ -239,12 +242,12 @@ menu_bar.add_command(label="Remote Support", command=lambda: webbrowser.open("ht
 
 # Add "Download" menu bar
 download_menu = tk.Menu(menu_bar, tearoff=0)
-menu_bar.add_cascade(label="Downloads", menu=download_menu)
+menu_bar.add_cascade(label="Downloads \u25BE", menu=download_menu)
 download_menu.add_command(label="Agent Installer", command=lambda: webbrowser.open("https://itbysrc.com/agent/Agent_Install.MSI"))
 
 # Add "Power Options" menu bar
 power_menu = tk.Menu(menu_bar, tearoff=0)
-menu_bar.add_cascade(label="Power Options", menu=power_menu)
+menu_bar.add_cascade(label="Power Options \u25BE", menu=power_menu)
 power_menu.add_command(label="Restart Computer", command=restart_computer)
 power_menu.add_command(label="Lock Computer", command=lock_computer)
 
