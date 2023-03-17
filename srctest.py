@@ -10,6 +10,7 @@ import queue
 import datetime
 import time
 import socket
+import winreg
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
@@ -36,6 +37,24 @@ def get_serial_number():
         else:
             return serial_number
     return "Unknown"
+
+def get_connectwise_id():
+    registry_keys = [
+        r"SOFTWARE\WOW6432Node\LabTech\Service",
+        r"SOFTWARE\LabTech\Service",
+    ]
+
+    for registry_key in registry_keys:
+        try:
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, registry_key) as key:
+                connectwise_id, _ = winreg.QueryValueEx(key, "ID")
+                return connectwise_id
+        except FileNotFoundError:
+            pass
+        except Exception as e:
+            return "Unknown"
+
+    return "Not Installed"
 
 ping_output_queue = queue.Queue()
 
@@ -236,6 +255,9 @@ ip_address_label.grid(column=0, row=1, padx=5, pady=5, sticky=tk.W)
 
 serial_number_label = ttk.Label(status_panel, text="Serial Number: {}".format(get_serial_number()), anchor=tk.W)
 serial_number_label.grid(column=0, row=2, padx=5, pady=5, sticky=tk.W)
+
+connectwise_id_label = ttk.Label(status_panel, text="ConnectWise ID: {}".format(get_connectwise_id()), anchor=tk.W)
+connectwise_id_label.grid(column=0, row=3, padx=5, pady=5, sticky=tk.W)
 
 window.columnconfigure(1, weight=1)
 window.rowconfigure(0, weight=1)
