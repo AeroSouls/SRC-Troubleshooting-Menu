@@ -9,14 +9,33 @@ import tempfile
 import queue
 import datetime
 import time
-import pyad.pyadutils
-import pyad.adquery
-import pyad.pyad as pyad
-import pyad.pyadutils as pyadutils
+import socket
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import simpledialog
-from ldap3 import Server, Connection, ALL, NTLM
+
+def get_computer_name():
+    return os.environ['COMPUTERNAME']
+
+def get_ip_address():
+    try:
+        hostname = socket.gethostname()
+        ip_address = socket.gethostbyname(hostname)
+        return ip_address
+    except Exception as e:
+        return "Unknown"
+
+def get_serial_number():
+    output = os.popen("wmic bios get serialnumber")
+    for line in output:
+        if "SerialNumber" in line or len(line.strip()) == 0:
+            continue
+        serial_number = line.strip()
+        if serial_number == "System Serial Number" or serial_number == "To be filled by O.E.M.":
+            return "Custom Build"
+        else:
+            return serial_number
+    return "Unknown"
 
 ping_output_queue = queue.Queue()
 
@@ -150,70 +169,6 @@ menu_bar.add_command(label="Open Admin CMD", command=lambda: run_command("start 
 menu_bar.add_command(label="Open Computer Management ", command=lambda: run_command("start compmgmt.msc"))
 menu_bar.add_command(label="Open Device Manager", command=lambda: run_command("start devmgmt.msc"))
 
-
-# Create a new menu item called "DC Tools"
-dc_tools_menu = tk.Menu(menu_bar, tearoff=0)
-menu_bar.add_cascade(label="DC Tools", menu=dc_tools_menu)
-
-def show_users():
-    users_window = tk.Toplevel(window)
-    users_window.title("DC Users")
-
-    def update_users_list():
-        for item in users_tree.get_children():
-            users_tree.delete(item)
-
-        # Connect to the current domain controller
-        pyad.pyad_setdefaults(ldap_server=pyad.pyadutils.get_default_dc(), username=None, password=None)
-
-        # Search for users in the local Active Directory
-        ad_query = pyad.adquery.ADQuery()
-        ad_query.execute_query(attributes=["sAMAccountName", "memberOf"], where_clause="(&(objectClass=user)(objectCategory=person))")
-
-        # Iterate through the users and add them to the Treeview
-        for row in ad_query.get_results():
-            username = row["sAMAccountName"]
-            member_of = row["memberOf"]
-            if any("Administrators" in group for group in member_of):
-                permission = "Admin"
-            else:
-                permission = "User"
-            users_tree.insert("", "end", text=username, values=(permission,))
-
-
-    users_tree = ttk.Treeview(users_window, columns=("Permission Level",), show="headings", selectmode=tk.BROWSE)
-    users_tree.heading("Permission Level", text="Permission Level")
-    users_tree.column("Permission Level", anchor=tk.CENTER)
-    users_tree.grid(row=0, column=0, rowspan=4, padx=5, pady=5)
-
-    def add_user_to_group():
-        selected_user = users_tree.item(users_tree.selection())["text"]
-        group_name = simpledialog.askstring("Group Name", "Enter the group name:")
-        if group_name:
-            os.system(f"net localgroup {group_name} {selected_user} /add")
-            messagebox.showinfo("User Added", f"{selected_user} added to {group_name} group.")
-            update_users_list()
-
-    def edit_account_info():
-        selected_user = users_tree.item(users_tree.selection())["text"]
-        new_password = simpledialog.askstring("New Password", f"Enter the new password for {selected_user}:", show="*")
-        if new_password:
-            os.system(f"net user {selected_user} {new_password}")
-            messagebox.showinfo("Password Updated", f"Password for {selected_user} has been updated.")
-            update_users_list()
-
-    add_to_group_button = ttk.Button(users_window, text="Add to Group", command=add_user_to_group)
-    add_to_group_button.grid(row=5, column=0, padx=5, pady=5)
-
-    edit_account_button = ttk.Button(users_window, text="Edit Account", command=edit_account_info)
-    edit_account_button.grid(row=6, column=0, padx=5, pady=5)
-
-    update_users_list()
-
-# Add a sub-item called "DC Users" to the "DC Tools" menu item
-dc_tools_menu.add_command(label="DC Users", command=show_users)
-
-
 # Modify the button_frame layout
 button_frame = ttk.Frame(window)
 button_frame.grid(column=0, row=0, padx=20, pady=10)
@@ -244,7 +199,8 @@ support_button.grid(row=3, column=0, padx=5, pady=5)
 tools_button.grid(row=4, column=0, padx=5, pady=5)
 
 output_text.grid(column=1, row=0, padx=10, pady=10, sticky=(tk.W, tk.E, tk.N, tk.S))
-scrollbar.grid(column=2, row=0, padx=10, pady=10, sticky=(tk.N, tk.S))
+scrollbar.grid(column=1, row=0, padx=(0, 10), pady=10, sticky=(tk.NE, tk.SE))  # Adjust the padx to shift the scrollbar to the right
+
 clear_button.grid(column=1, row=1, padx=10, pady=5, sticky=(tk.W, tk.E))
 
 # Ping Frame / Ping Entry
@@ -266,6 +222,20 @@ stop_button.grid(column=1, row=2, padx=10, pady=5, sticky=(tk.W, tk.E))
 
 ping_output_label = ttk.Label(window, textvariable=ping_output_var, anchor=tk.W, justify=tk.LEFT)
 ping_output_label.grid(column=1, row=3, padx=10, pady=10, sticky=(tk.W, tk.E))
+
+# Create a status panel
+status_panel = ttk.Frame(window)
+status_panel.grid(column=2, row=0, padx=5, pady=5, rowspan=3, sticky=tk.N)  # Adjust the rowspan to accommodate the scrollbar
+
+# Add labels for computer name, IP address, and serial number
+computer_name_label = ttk.Label(status_panel, text="Computer: {}".format(get_computer_name()), anchor=tk.W)
+computer_name_label.grid(column=0, row=0, padx=5, pady=5, sticky=tk.W)
+
+ip_address_label = ttk.Label(status_panel, text="IP Address: {}".format(get_ip_address()), anchor=tk.W)
+ip_address_label.grid(column=0, row=1, padx=5, pady=5, sticky=tk.W)
+
+serial_number_label = ttk.Label(status_panel, text="Serial Number: {}".format(get_serial_number()), anchor=tk.W)
+serial_number_label.grid(column=0, row=2, padx=5, pady=5, sticky=tk.W)
 
 window.columnconfigure(1, weight=1)
 window.rowconfigure(0, weight=1)
