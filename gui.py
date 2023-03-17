@@ -9,6 +9,7 @@ import datetime
 import shutil
 import tempfile
 import pyperclip
+import subprocess
 
 from functions import get_computer_name, get_ip_address, get_serial_number, get_connectwise_id
 
@@ -19,7 +20,7 @@ def restart_computer():
     if confirm:
         run_command("shutdown /r /t 5")
 
-def ping_google(ip_address):
+def ping_google(ip_address, ping_output_var, output_text, scrollbar):
     global p, ping_thread
 
     ping_output_var.set("")  # Clear the ping output variable
@@ -42,8 +43,8 @@ def ping_google(ip_address):
             ping_output_queue.put(line_with_timestamp)
 
             # Update the last three lines of the ping output
-            last_three_lines.pop(0)
-            last_three_lines.append(line_with_timestamp)
+            app.last_three_lines.pop(0)
+            app.last_three_lines.append(line_with_timestamp)
 
             # Clear the output text widget and add the last three lines to it
             output_text.config(state=tk.NORMAL)
@@ -156,7 +157,7 @@ class TroubleshooterApp(tk.Tk):
 
         # Create a StringVar to store the ping output variable and a list to store the last three lines of output
         ping_output_var = tk.StringVar()
-        last_three_lines = ["", "", "", "", "", "", ""]
+        self.last_three_lines = ["", "", "", "", "", "", ""]
 
         # Create a menu bar
         menu_bar = tk.Menu(self)
@@ -218,7 +219,7 @@ class TroubleshooterApp(tk.Tk):
         ip_entry.grid(row=0, column=0, padx=5, pady=5)
         ip_entry.insert(0, "google.com")  # Set a default value
 
-        ping_button = ttk.Button(ping_frame, text="Ping IP", command=lambda: ping_google(ip_entry.get()))
+        ping_button = ttk.Button(ping_frame, text="Ping IP", command=lambda: ping_google(ip_entry.get(), ping_output_var, output_text, scrollbar))
         ping_button.grid(row=1, column=0, padx=5, pady=5)
 
         download_log_button = ttk.Button(ping_frame, text="Open Ping Log", command=download_ping_log)
