@@ -200,14 +200,6 @@ def copy_info_to_clipboard():
 def open_active_directory_users_and_computers():
     run_command("start dsa.msc")
 
-def on_combobox_selected(event):
-    selected_command = combobox.get()
-
-    if selected_command == "Show Temp Directory":
-        run_command("dir %temp%\\*")
-    elif selected_command == "Clear Temp Files":
-        run_command("del /s /q /f %temp%\\*")
-
 # Create the main window
 window = tk.Tk()
 window.title("SRC Troubleshooter Menu #252-756-0004")
@@ -240,6 +232,9 @@ menu_bar.add_command(label="Remote Support", command=lambda: webbrowser.open("ht
 download_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Downloads \u25BE", menu=download_menu)
 download_menu.add_command(label="Agent Installer", command=lambda: webbrowser.open("https://itbysrc.com/agent/Agent_Install.MSI"))
+download_menu.add_command(label="ESETV10", command=lambda: webbrowser.open("https://itbysrc.com/agent/ESETv10.exe"))
+download_menu.add_command(label="Revo-Uninstaller", command=lambda: webbrowser.open("https://itbysrc.com/agent/!%20SRC%20Tools/RevoUninstaller_Portable.zip"))
+download_menu.add_command(label="Ninite", command=lambda: webbrowser.open("https://ninite.com/"))
 
 # Add "Power Options" menu bar
 power_menu = tk.Menu(menu_bar, tearoff=0)
@@ -262,6 +257,8 @@ run_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label="Run CMD \u25BE", menu=run_menu)
 run_menu.add_command(label="Show Temp Directory", command=lambda: run_command("dir %temp%\\*"))
 run_menu.add_command(label="Clear Temp Files", command=lambda: run_command("del /s /q /f %temp%\\*"))
+run_menu.add_command(label="ipconfig", command=lambda: run_command("ipconfig /all"))
+run_menu.add_command(label="IP-Rel/Ren", command=lambda: run_command("ipconfig /release | ipconfig /renew"))
 
 # Ping Frame / Ping Entry
 ping_frame = ttk.Frame(left_frame)
