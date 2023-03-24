@@ -260,6 +260,7 @@ run_menu.add_command(label="Clear Temp Files", command=lambda: run_command("del 
 run_menu.add_command(label="ipconfig", command=lambda: run_command("ipconfig /all"))
 run_menu.add_command(label="IP-Rel/Ren", command=lambda: run_command("ipconfig /release | ipconfig /renew"))
 
+
 # Ping Frame / Ping Entry
 ping_frame = ttk.Frame(left_frame)
 ping_frame.pack(pady=5)
