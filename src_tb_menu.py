@@ -11,7 +11,6 @@ import datetime
 import shutil
 import tempfile
 import winreg
-import pyperclip
 
 def get_computer_name():
     return os.environ['COMPUTERNAME']

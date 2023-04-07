@@ -1,0 +1,17 @@
+04-06-2023 11:26:29 PM - 
+04-06-2023 11:26:29 PM - Pinging google.com [142.251.163.101] with 32 bytes of data:
+04-06-2023 11:26:29 PM - Reply from 142.251.163.101: bytes=32 time=41ms TTL=104
+04-06-2023 11:26:30 PM - Reply from 142.251.163.101: bytes=32 time=43ms TTL=104
+04-06-2023 11:26:31 PM - Reply from 142.251.163.101: bytes=32 time=35ms TTL=104
+04-06-2023 11:26:58 PM - 
+04-06-2023 11:26:58 PM - Pinging google.com [142.251.163.101] with 32 bytes of data:
+04-06-2023 11:26:58 PM - Reply from 142.251.163.101: bytes=32 time=36ms TTL=104
+04-06-2023 11:26:59 PM - Reply from 142.251.163.101: bytes=32 time=38ms TTL=104
+04-06-2023 11:27:08 PM - 
+04-06-2023 11:27:08 PM - Pinging google.com [142.251.163.101] with 32 bytes of data:
+04-06-2023 11:27:08 PM - Reply from 142.251.163.101: bytes=32 time=41ms TTL=104
+04-06-2023 11:27:09 PM - Reply from 142.251.163.101: bytes=32 time=38ms TTL=104
+04-06-2023 11:27:10 PM - Reply from 142.251.163.101: bytes=32 time=49ms TTL=104
+04-06-2023 11:27:11 PM - Reply from 142.251.163.101: bytes=32 time=46ms TTL=104
+04-06-2023 11:27:12 PM - Reply from 142.251.163.101: bytes=32 time=37ms TTL=104
+04-06-2023 11:27:13 PM - Reply from 142.251.163.101: bytes=32 time=38ms TTL=104
